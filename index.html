@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mvvm</title>
+</head>
+
+<body>
+    <h1 id="App">0</h1>
+    <button onclick="add()">addButton</button>
+    <script>
+        function observe(obj) {
+            if (typeof obj != "object") {
+                return
+            }
+            for(let key in obj){
+                defineProperty(obj,key,obj[key])
+            }
+        }
+        // 函数的闭包
+        function defineProperty(obj, key, value) {
+            if(typeof value=="object"){
+                observe(value)
+            }
+            Object.defineProperty(obj, key, {
+                get: function () {
+                    console.log("收集依赖", key)
+                    return value
+                },
+                set: function (val) {
+                    value = val
+                    if(typeof val=="object"){
+                        observe(value)
+                    }
+                    // 更新视图
+                    updateView(val)
+                }
+            })
+        }
+        function updateView(val){
+            let app=document.getElementById("App")
+            app.innerText=val
+        }
+        let app={count:{value:0}}
+        observe(app)
+        function add(){
+            app.count.value+=1
+        }
+    </script>
+</body>
+
+</html>
